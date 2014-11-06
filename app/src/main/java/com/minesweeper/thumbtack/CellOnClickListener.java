@@ -30,7 +30,7 @@ public class CellOnClickListener implements OnItemClickListener {
         if (cell.isFlagged) {
             return;
         }
-        
+
         cell.isFlipped = true;
 
         if (cell.isMine) {

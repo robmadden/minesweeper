@@ -90,7 +90,7 @@ public class GridAdapter extends BaseAdapter {
                 // Skip out of bounds columns
                 if (j < 0 || j > GridAdapter.TOTAL_COLUMN_COUNT) { continue; }
                 int adjacentPosition = k * GridAdapter.TOTAL_ROW_COUNT + j;
-                if (adjacentPosition > 0
+                if (adjacentPosition >= 0
                  && adjacentPosition < (GridAdapter.TOTAL_ROW_COUNT * GridAdapter.TOTAL_COLUMN_COUNT)) {
                     adjacentCellPositions.add(adjacentPosition);
                 }

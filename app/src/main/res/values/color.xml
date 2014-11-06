@@ -2,4 +2,5 @@
 <resources>
     <color name="TRANSPARENT_GREEN">#CC00FF00</color>
     <color name="YELLOW">#FFFFFF00</color>
+    <color name="ACTIONBAR_GRAY">#303030</color>
 </resources>
