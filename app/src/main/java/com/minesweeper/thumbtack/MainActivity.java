@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.GridView;
+import android.widget.TextView;
 
 
 public class MainActivity extends Activity {
@@ -19,7 +20,8 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         GridView gridview = (GridView) findViewById(R.id.gridview);
-        adapter = new GridAdapter(this);
+        TextView flagCountView = (TextView) findViewById(R.id.flag_value);
+        adapter = new GridAdapter(this, flagCountView);
         gridview.setAdapter(adapter);
         AlertDialog.Builder alert = createEndGameAlertDialog();
         gridview.setOnItemClickListener(new CellOnClickListener(adapter, alert));

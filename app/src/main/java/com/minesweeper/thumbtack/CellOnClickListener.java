@@ -26,6 +26,11 @@ public class CellOnClickListener implements OnItemClickListener {
         }
 
         Cell cell = adapter.getItem(position);
+        // If for whatever reason this cell was flagged
+        if (cell.isFlagged) {
+            return;
+        }
+        
         cell.isFlipped = true;
 
         if (cell.isMine) {

@@ -10,10 +10,21 @@ public class CellOnLongClickListener implements AdapterView.OnItemLongClickListe
         this.adapter = adapter;
     }
     public boolean onItemLongClick (AdapterView<?> parent, View view, int position, long id) {
+        if (adapter.flagCount == 0) {
+            return true;
+        }
+
         Cell c = adapter.getItem(position);
         if (c != null) {
             c.isFlagged = !c.isFlagged;
         }
+
+        if (c.isFlagged) {
+            adapter.flagCount--;
+        } else {
+            adapter.flagCount++;
+        }
+
         adapter.notifyDataSetInvalidated();
         return true;
     }
