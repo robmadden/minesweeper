@@ -85,8 +85,7 @@ public class GridAdapter extends BaseAdapter {
                 // Skip out of bounds columns
                 if (j < 0 || j > GridAdapter.TOTAL_COLUMN_COUNT) { continue; }
                 int adjacentPosition = k * GridAdapter.TOTAL_ROW_COUNT + j;
-                if (adjacentPosition != position
-                 && adjacentPosition > 0
+                if (adjacentPosition > 0
                  && adjacentPosition < (GridAdapter.TOTAL_ROW_COUNT * GridAdapter.TOTAL_COLUMN_COUNT)) {
                     adjacentCellPositions.add(adjacentPosition);
                 }
@@ -112,6 +111,10 @@ public class GridAdapter extends BaseAdapter {
             }
         }
         return numAdjacentMines;
+    }
+
+    public List<Cell> getCells() {
+        return this.cells;
     }
 
     public int getCount() {
@@ -149,7 +152,7 @@ public class GridAdapter extends BaseAdapter {
             } else if (currentCell.adjacentMineCount == 0) {
                 view.setBackgroundColor(TRANSPARENT_GREEN);
             } else if (currentCell.adjacentMineCount > 0) {
-                view.setBackgroundColor(Color.GREEN);
+                view.setBackgroundColor(TRANSPARENT_GREEN);
                 view.setTypeface(null, Typeface.BOLD);
                 view.setTextAlignment(TextView.TEXT_ALIGNMENT_CENTER);
                 view.setText(String.valueOf(currentCell.adjacentMineCount));
@@ -161,11 +164,13 @@ public class GridAdapter extends BaseAdapter {
                 } else if (currentCell.adjacentMineCount == 0) {
                     view.setBackgroundColor(TRANSPARENT_GREEN);
                 } else {
-                    view.setBackgroundColor(Color.GREEN);
+                    view.setBackgroundColor(TRANSPARENT_GREEN);
                     view.setTextAlignment(TextView.TEXT_ALIGNMENT_CENTER);
                     view.setTypeface(null, Typeface.BOLD);
                     view.setText(String.valueOf(currentCell.adjacentMineCount));
                 }
+            } else if (currentCell.isFlagged) {
+                view.setBackgroundColor(Color.YELLOW);
             } else {
                 view.setBackgroundColor(Color.WHITE);
             }

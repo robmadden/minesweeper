@@ -26,17 +26,14 @@ public class CellOnClickListener implements OnItemClickListener {
         }
 
         Cell cell = adapter.getItem(position);
+        cell.isFlipped = true;
 
         if (cell.isMine) {
-            cell.isFlipped = true;
             alert.show();
-        } else if (cell.adjacentMineCount > 0) {
-            cell.isFlipped = true;
         } else if (cell.adjacentMineCount == 0) {
-            cell.isFlipped = true;
             for (Integer i : cell.adjacentCellPositions) {
                 Cell adjacentCell = adapter.getItem(i);
-                if (!adjacentCell.isFlipped && adjacentCell.adjacentMineCount == 0) {
+                if (!adjacentCell.isFlipped && adjacentCell.adjacentMineCount >= 0) {
                     onItemClick(parent, v, i, i);
                 }
             }

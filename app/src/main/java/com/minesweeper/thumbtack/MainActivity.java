@@ -7,10 +7,10 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.GridView;
-import android.widget.Toast;
 
 
 public class MainActivity extends Activity {
+    public static final String GAME_OVER = "Game Over";
     private GridAdapter adapter;
     private Menu menu;
 
@@ -23,6 +23,7 @@ public class MainActivity extends Activity {
         gridview.setAdapter(adapter);
         AlertDialog.Builder alert = createEndGameAlertDialog();
         gridview.setOnItemClickListener(new CellOnClickListener(adapter, alert));
+        gridview.setOnItemLongClickListener(new CellOnLongClickListener(adapter));
     }
 
     @Override
@@ -48,7 +49,7 @@ public class MainActivity extends Activity {
             onCreate(null);
             return true;
         } else if (id == R.id.validate) {
-            Toast.makeText(getApplicationContext(), "Not implemented yet!", Toast.LENGTH_SHORT).show();
+            validate();
             return true;
         } else if (id == R.id.cheat) {
             cheat();
@@ -90,12 +91,36 @@ public class MainActivity extends Activity {
         adapter.cheat();
     }
 
+    private void validate() {
+        boolean victory = true;
+        for (Cell c : adapter.getCells()) {
+            if (c.isMine && !c.isFlagged) {
+                victory = false;
+            }
+        }
+
+        AlertDialog.Builder alert = new AlertDialog.Builder(this);
+        if (victory) {
+            alert.setMessage("You won!");
+        } else {
+            alert.setMessage("Sorry, you lost.");
+        }
+        alert.setTitle(GAME_OVER);
+        alert.setPositiveButton("Play again", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                onCreate(null);
+            }
+        });
+        alert.setCancelable(false);
+        alert.show();
+    }
+
     /*
      * Simple helper to create an alert dialog when a mine is pushed
      */
     private AlertDialog.Builder createEndGameAlertDialog() {
         AlertDialog.Builder alert = new AlertDialog.Builder(this);
-        alert.setTitle("Game Over");
+        alert.setTitle(GAME_OVER);
         alert.setMessage("You hit a mine, try again!");
         alert.setPositiveButton("Restart", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {

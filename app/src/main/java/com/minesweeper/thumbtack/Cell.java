@@ -7,7 +7,8 @@ import java.util.List;
  */
 public class Cell {
     public boolean isMine;
+    public boolean isFlipped;
+    public boolean isFlagged;
     public List<Integer> adjacentCellPositions;
     public Integer adjacentMineCount;
-    public boolean isFlipped;
 }
