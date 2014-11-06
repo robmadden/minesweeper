@@ -18,7 +18,7 @@ import java.util.List;
  */
 public class GridAdapter extends BaseAdapter {
     public static final int TOTAL_CELL_COUNT = 64;
-    public static final int TOTAL_MINE_COUNT = 3;
+    public static final int TOTAL_MINE_COUNT = 10;
     public static final int TOTAL_ROW_COUNT = 8;
     public static final int TOTAL_COLUMN_COUNT = 8;
     private final TextView flagCountView;

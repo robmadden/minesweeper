@@ -11,10 +11,12 @@ import android.widget.AdapterView.OnItemClickListener;
 public class CellOnClickListener implements OnItemClickListener {
     private GridAdapter adapter;
     private AlertDialog.Builder alert;
+    private MainActivity activity;
 
-    public CellOnClickListener(GridAdapter adapter, AlertDialog.Builder alert) {
+    public CellOnClickListener(GridAdapter adapter, AlertDialog.Builder alert, MainActivity activity) {
         this.alert = alert;
         this.adapter = adapter;
+        this.activity = activity;
     }
 
     public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
@@ -23,6 +25,11 @@ public class CellOnClickListener implements OnItemClickListener {
             return;
         } else if (position < 0 || position > adapter.getCount()) {
             return;
+        }
+
+        // If the game hasn't started, start the timer
+        if (!activity.gameHasStarted) {
+            activity.startTimer();
         }
 
         Cell cell = adapter.getItem(position);

@@ -9,11 +9,17 @@ import android.view.MenuItem;
 import android.widget.GridView;
 import android.widget.TextView;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 
 public class MainActivity extends Activity {
     public static final String GAME_OVER = "Game Over";
     private GridAdapter adapter;
     private Menu menu;
+    public boolean gameHasStarted;
+    Timer t;
+    TimerTask task;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,7 +30,7 @@ public class MainActivity extends Activity {
         adapter = new GridAdapter(this, flagCountView);
         gridview.setAdapter(adapter);
         AlertDialog.Builder alert = createEndGameAlertDialog();
-        gridview.setOnItemClickListener(new CellOnClickListener(adapter, alert));
+        gridview.setOnItemClickListener(new CellOnClickListener(adapter, alert, this));
         gridview.setOnItemLongClickListener(new CellOnLongClickListener(adapter));
     }
 
@@ -47,18 +53,37 @@ public class MainActivity extends Activity {
         int id = item.getItemId();
 
         if (id == R.id.new_game) {
+            stopTimer();
             modifyMenuOnNewGame();
             onCreate(null);
             return true;
         } else if (id == R.id.validate) {
+            stopTimer();
             validate();
             return true;
         } else if (id == R.id.cheat) {
+            stopTimer();
             cheat();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    /*
+     * Create an upwards counting timer to display
+     */
+    public void startTimer() {
+        gameHasStarted = true;
+        t = new Timer();
+        task = new GameTimerTask(this);
+        t.scheduleAtFixedRate(task, 0, 1000);
+    }
+
+    public void stopTimer() {
+        gameHasStarted = false;
+        t.cancel();
+        task.cancel();
     }
 
     /*
@@ -110,6 +135,7 @@ public class MainActivity extends Activity {
         alert.setTitle(GAME_OVER);
         alert.setPositiveButton("Play again", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
+                stopTimer();
                 onCreate(null);
             }
         });
@@ -126,11 +152,13 @@ public class MainActivity extends Activity {
         alert.setMessage("You hit a mine, try again!");
         alert.setPositiveButton("Restart", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
+                stopTimer();
                 onCreate(null);
             }
         });
         alert.setNeutralButton("Show Solution", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
+                stopTimer();
                 cheat();
             }
         });
