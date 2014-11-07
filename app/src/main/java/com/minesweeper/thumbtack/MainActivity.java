@@ -82,8 +82,13 @@ public class MainActivity extends Activity {
 
     public void stopTimer() {
         gameHasStarted = false;
-        t.cancel();
-        task.cancel();
+        if (t != null) {
+            t.cancel();
+        }
+
+        if (task != null) {
+            task.cancel();
+        }
     }
 
     /*

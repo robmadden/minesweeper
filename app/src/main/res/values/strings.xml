@@ -5,6 +5,6 @@
     <string name="new_game">New Game</string>
     <string name="validate">Validate</string>
     <string name="cheat">Show Solution</string>
-    <string name="flags">Flags Left:</string>
+    <string name="null_string">-</string>
 
 </resources>

@@ -21,9 +21,17 @@ public class GridAdapter extends BaseAdapter {
     public static final int TOTAL_MINE_COUNT = 10;
     public static final int TOTAL_ROW_COUNT = 8;
     public static final int TOTAL_COLUMN_COUNT = 8;
+    private static final int TEXT_CELL_SIZE = 18;
     private final TextView flagCountView;
     public int flagCount;
-    private final int TRANSPARENT_GREEN;
+
+    // Colors
+    private final int CELL_COLOR;
+    private final int PRESSED_CELL_COLOR;
+    private final int NUMBER_1_COLOR;
+    private final int NUMBER_2_COLOR;
+    private final int NUMBER_3_COLOR;
+    private final int NUMBER_4_COLOR;
 
     private Context context;
     private List<Cell> cells;
@@ -36,7 +44,12 @@ public class GridAdapter extends BaseAdapter {
         cells = new ArrayList<Cell>(TOTAL_CELL_COUNT);
         randomizeBoard();
         setBoardState();
-        TRANSPARENT_GREEN = context.getResources().getColor(R.color.TRANSPARENT_GREEN);
+        CELL_COLOR = context.getResources().getColor(R.color.CELL_COLOR);
+        PRESSED_CELL_COLOR = context.getResources().getColor(R.color.PRESSED_CELL_COLOR);
+        NUMBER_1_COLOR = context.getResources().getColor(R.color.NUMBER_1_COLOR);
+        NUMBER_2_COLOR = context.getResources().getColor(R.color.NUMBER_2_COLOR);
+        NUMBER_3_COLOR = context.getResources().getColor(R.color.NUMBER_3_COLOR);
+        NUMBER_4_COLOR = context.getResources().getColor(R.color.NUMBER_4_COLOR);
         flagCount = TOTAL_MINE_COUNT;
     }
 
@@ -144,8 +157,7 @@ public class GridAdapter extends BaseAdapter {
 
         if (convertView == null) {
             view = new TextView(context);
-            view.setLayoutParams(new GridView.LayoutParams(80, 80));
-            view.setPadding(4, 4, 4, 4);
+            view.setLayoutParams(new GridView.LayoutParams(86, 86));
             view.setBackgroundColor(Color.BLACK);
         } else {
             view = (TextView) convertView;
@@ -157,34 +169,35 @@ public class GridAdapter extends BaseAdapter {
             flagCountView.setText(String.valueOf(flagCount));
         }
 
-        if (cheated) {
+        if (currentCell.isFlipped || cheated) {
             if (currentCell.isMine) {
-                view.setBackgroundColor(Color.RED);
+                view.setBackgroundColor(PRESSED_CELL_COLOR);
+                view.setBackgroundResource(R.drawable.mine);
             } else if (currentCell.adjacentMineCount == 0) {
-                view.setBackgroundColor(TRANSPARENT_GREEN);
-            } else if (currentCell.adjacentMineCount > 0) {
-                view.setBackgroundColor(TRANSPARENT_GREEN);
+                view.setBackgroundColor(PRESSED_CELL_COLOR);
+            } else {
+                view.setBackgroundColor(PRESSED_CELL_COLOR);
+                view.setPadding(4, 0, 0, 0);
                 view.setTypeface(null, Typeface.BOLD);
-                view.setTextAlignment(TextView.TEXT_ALIGNMENT_TEXT_END);
+
+                if (currentCell.adjacentMineCount == 1) {
+                    view.setTextColor(NUMBER_1_COLOR);
+                } else if (currentCell.adjacentMineCount == 2) {
+                    view.setTextColor(NUMBER_2_COLOR);
+                } else if (currentCell.adjacentMineCount == 3) {
+                    view.setTextColor(NUMBER_3_COLOR);
+                } else if (currentCell.adjacentMineCount == 4) {
+                    view.setTextColor(NUMBER_4_COLOR);
+                } else {
+                    view.setTextColor(Color.MAGENTA);
+                }
+                view.setTextSize(TEXT_CELL_SIZE);
                 view.setText(String.valueOf(currentCell.adjacentMineCount));
             }
+        } else if (currentCell.isFlagged) {
+            view.setBackgroundColor(Color.YELLOW);
         } else {
-            if (currentCell.isFlipped) {
-                if (currentCell.isMine) {
-                    view.setBackgroundColor(Color.RED);
-                } else if (currentCell.adjacentMineCount == 0) {
-                    view.setBackgroundColor(TRANSPARENT_GREEN);
-                } else {
-                    view.setBackgroundColor(TRANSPARENT_GREEN);
-                    view.setTextAlignment(TextView.TEXT_ALIGNMENT_TEXT_END);
-                    view.setTypeface(null, Typeface.BOLD);
-                    view.setText(String.valueOf(currentCell.adjacentMineCount));
-                }
-            } else if (currentCell.isFlagged) {
-                view.setBackgroundColor(Color.YELLOW);
-            } else {
-                view.setBackgroundColor(Color.LTGRAY);
-            }
+            view.setBackgroundColor(CELL_COLOR);
         }
 
         return view;

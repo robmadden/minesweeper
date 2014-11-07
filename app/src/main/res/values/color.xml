@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="TRANSPARENT_GREEN">#CC00FF00</color>
-    <color name="YELLOW">#FFFFFF00</color>
     <color name="ACTIONBAR_GRAY">#303030</color>
+    <color name="CELL_COLOR">#C0C0C0</color>
+    <color name="PRESSED_CELL_COLOR">#A5A5A5</color>
+    <color name="YELLOW">#FFFFFF00</color>
+    <color name="NUMBER_1_COLOR">#0048FB</color>
+    <color name="NUMBER_2_COLOR">#537404</color>
+    <color name="NUMBER_3_COLOR">#ED462F</color>
+    <color name="NUMBER_4_COLOR">#001E79</color>
 </resources>
