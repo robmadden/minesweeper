@@ -10,7 +10,11 @@ public class CellOnLongClickListener implements AdapterView.OnItemLongClickListe
         this.adapter = adapter;
     }
     public boolean onItemLongClick (AdapterView<?> parent, View view, int position, long id) {
-        if (adapter.flagCount == 0) {
+        if (adapter.isInCheatMode()) {
+            return true;
+        }
+
+        if (adapter.flagCount == 0 && !adapter.getItem(position).isFlagged) {
             return true;
         }
 

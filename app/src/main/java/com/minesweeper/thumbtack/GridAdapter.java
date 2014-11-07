@@ -1,8 +1,13 @@
 package com.minesweeper.thumbtack;
 
-import android.content.Context;
+import android.app.Activity;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.graphics.Typeface;
+import android.util.TypedValue;
+import android.view.Display;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -33,23 +38,24 @@ public class GridAdapter extends BaseAdapter {
     private final int NUMBER_3_COLOR;
     private final int NUMBER_4_COLOR;
 
-    private Context context;
+    private Activity activity;
     private List<Cell> cells;
     private boolean cheated;
 
-    public GridAdapter(Context context, TextView flagCountView) {
-        this.context = context;
+    public GridAdapter(Activity activity, TextView flagCountView) {
+        this.activity = activity;
         this.flagCountView = flagCountView;
         
         cells = new ArrayList<Cell>(TOTAL_CELL_COUNT);
         randomizeBoard();
         setBoardState();
-        CELL_COLOR = context.getResources().getColor(R.color.CELL_COLOR);
-        PRESSED_CELL_COLOR = context.getResources().getColor(R.color.PRESSED_CELL_COLOR);
-        NUMBER_1_COLOR = context.getResources().getColor(R.color.NUMBER_1_COLOR);
-        NUMBER_2_COLOR = context.getResources().getColor(R.color.NUMBER_2_COLOR);
-        NUMBER_3_COLOR = context.getResources().getColor(R.color.NUMBER_3_COLOR);
-        NUMBER_4_COLOR = context.getResources().getColor(R.color.NUMBER_4_COLOR);
+        Resources resources = activity.getResources();
+        CELL_COLOR = resources.getColor(R.color.CELL_COLOR);
+        PRESSED_CELL_COLOR = resources.getColor(R.color.PRESSED_CELL_COLOR);
+        NUMBER_1_COLOR = resources.getColor(R.color.NUMBER_1_COLOR);
+        NUMBER_2_COLOR = resources.getColor(R.color.NUMBER_2_COLOR);
+        NUMBER_3_COLOR = resources.getColor(R.color.NUMBER_3_COLOR);
+        NUMBER_4_COLOR = resources.getColor(R.color.NUMBER_4_COLOR);
         flagCount = TOTAL_MINE_COUNT;
     }
 
@@ -101,7 +107,7 @@ public class GridAdapter extends BaseAdapter {
             if (k < 0 || k > GridAdapter.TOTAL_ROW_COUNT) { continue; }
             for (int j = column - 1 ; j <= column + 1 ; j++) {
                 // Skip out of bounds columns
-                if (j < 0 || j > GridAdapter.TOTAL_COLUMN_COUNT) { continue; }
+                if (j < 0 || j >= GridAdapter.TOTAL_COLUMN_COUNT) { continue; }
                 int adjacentPosition = k * GridAdapter.TOTAL_ROW_COUNT + j;
                 if (adjacentPosition >= 0
                  && adjacentPosition < (GridAdapter.TOTAL_ROW_COUNT * GridAdapter.TOTAL_COLUMN_COUNT)) {
@@ -156,8 +162,40 @@ public class GridAdapter extends BaseAdapter {
         TextView view;
 
         if (convertView == null) {
-            view = new TextView(context);
-            view.setLayoutParams(new GridView.LayoutParams(86, 86));
+            view = new TextView(activity);
+
+            Display display = activity.getWindowManager().getDefaultDisplay();
+            Point size = new Point();
+            display.getSize(size);
+            TypedValue tv = new TypedValue();
+
+            boolean inPortraitMode = false;
+            if (activity.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+                inPortraitMode = true;
+            }
+
+            int actionBarHeight = 70;
+            if (activity.getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)) {
+                actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data, activity.getResources().getDisplayMetrics());
+            }
+
+            int width = 0;
+            if (inPortraitMode) {
+                size.y -= actionBarHeight;
+
+                if (size.x < size.y) {
+                    width = (int) ((double) (size.x * .95));
+                } else {
+                    width = (int) ((double) (size.y * .95));
+                }
+            } else {
+                size.y -= actionBarHeight;
+                width = (int) ((double) (size.y * .95));
+            }
+
+            int cellWidth = width / TOTAL_COLUMN_COUNT;
+            int cellHeight = width / TOTAL_ROW_COUNT;
+            view.setLayoutParams(new GridView.LayoutParams(cellWidth, cellHeight));
             view.setBackgroundColor(Color.BLACK);
         } else {
             view = (TextView) convertView;
@@ -177,7 +215,7 @@ public class GridAdapter extends BaseAdapter {
                 view.setBackgroundColor(PRESSED_CELL_COLOR);
             } else {
                 view.setBackgroundColor(PRESSED_CELL_COLOR);
-                view.setPadding(4, 0, 0, 0);
+                view.setPadding(5, 0, 0, 0);
                 view.setTypeface(null, Typeface.BOLD);
 
                 if (currentCell.adjacentMineCount == 1) {

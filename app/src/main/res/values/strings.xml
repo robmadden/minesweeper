@@ -1,10 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name"></string>
+    <string name="app_name">Minesweeper</string>
     <string name="new_game">New Game</string>
     <string name="validate">Validate</string>
     <string name="cheat">Show Solution</string>
+    <string name="show_high_scores">Show High Scores</string>
     <string name="null_string">-</string>
+    <string name="instructions">*click and hold to \'flag\' a cell</string>
+
+    <!-- Stuff for high scores -->
+    <string name="top_five_times_label">Top five times</string>
+    <string name="name_label">Name</string>
+    <string name="time_label">Time</string>
+
 
 </resources>

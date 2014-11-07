@@ -1,11 +1,14 @@
 package com.minesweeper.thumbtack;
 
-import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.TextView;
 
@@ -13,25 +16,23 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 
-public class MainActivity extends Activity {
+public class MainActivity extends ActionBarActivity {
     public static final String GAME_OVER = "Game Over";
     private GridAdapter adapter;
     private Menu menu;
+    private Timer t;
+    private TimerTask task;
+    private BestTimes times;
     public boolean gameHasStarted;
-    Timer t;
-    TimerTask task;
+    public static Context appContext;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        GridView gridview = (GridView) findViewById(R.id.gridview);
-        TextView flagCountView = (TextView) findViewById(R.id.flag_value);
-        adapter = new GridAdapter(this, flagCountView);
-        gridview.setAdapter(adapter);
-        AlertDialog.Builder alert = createEndGameAlertDialog();
-        gridview.setOnItemClickListener(new CellOnClickListener(adapter, alert, this));
-        gridview.setOnItemLongClickListener(new CellOnLongClickListener(adapter));
+        buildGame();
+        times = new BestTimes();
+        this.appContext = getApplicationContext();
     }
 
     @Override
@@ -55,7 +56,7 @@ public class MainActivity extends Activity {
         if (id == R.id.new_game) {
             stopTimer();
             modifyMenuOnNewGame();
-            onCreate(null);
+            buildGame();
             return true;
         } else if (id == R.id.validate) {
             stopTimer();
@@ -64,6 +65,9 @@ public class MainActivity extends Activity {
         } else if (id == R.id.cheat) {
             stopTimer();
             cheat();
+            return true;
+        } else if (id == R.id.high_scores) {
+            startActivity(buildBestTimesIntent());
             return true;
         }
 
@@ -80,6 +84,14 @@ public class MainActivity extends Activity {
         t.scheduleAtFixedRate(task, 0, 1000);
     }
 
+    private Intent buildBestTimesIntent() {
+        Intent intent = new Intent(this, BestTimesActivity.class);
+        return intent;
+    }
+
+    /*
+     * Stop the timer
+     */
     public void stopTimer() {
         gameHasStarted = false;
         if (t != null) {
@@ -89,6 +101,22 @@ public class MainActivity extends Activity {
         if (task != null) {
             task.cancel();
         }
+    }
+
+    /*
+     * Helper method to build the minesweeper game
+     */
+    private void buildGame() {
+        GridView gridview = (GridView) findViewById(R.id.gridview);
+        TextView flagCountView = (TextView) findViewById(R.id.flag_value);
+        TextView timeLabelView = (TextView) findViewById(R.id.timer);
+        timeLabelView.setText("0:00");
+
+        adapter = new GridAdapter(this, flagCountView);
+        gridview.setAdapter(adapter);
+        AlertDialog.Builder alert = createEndGameAlertDialog();
+        gridview.setOnItemClickListener(new CellOnClickListener(adapter, alert, this));
+        gridview.setOnItemLongClickListener(new CellOnLongClickListener(adapter));
     }
 
     /*
@@ -123,6 +151,9 @@ public class MainActivity extends Activity {
         adapter.cheat();
     }
 
+    /*
+     * Check if the player's selections are correct
+     */
     private void validate() {
         boolean victory = true;
         for (Cell c : adapter.getCells()) {
@@ -132,20 +163,55 @@ public class MainActivity extends Activity {
         }
 
         AlertDialog.Builder alert = new AlertDialog.Builder(this);
+        alert.setTitle(GAME_OVER);
         if (victory) {
-            alert.setMessage("You won!");
+            // Set an EditText view to get user input
+            final EditText input = new EditText(this);
+            final TextView timer = (TextView) findViewById(R.id.timer);
+            final String readableTime = (String)timer.getText();
+            Integer time = times.toSeconds(readableTime);
+            final int index = times.getBestTimeIndex(time);
+
+            if (index < BestTimes.TOTAL_SCORES_TO_STORE) {
+                alert.setTitle("New high score!");
+                alert.setMessage("Please enter your name");
+                alert.setView(input);
+                alert.setPositiveButton("Submit", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        String value = input.getText().toString();
+                        if (value.isEmpty()) { return; }
+                        times.addNewTime(value, readableTime, index);
+                        stopTimer();
+                        buildGame();
+                    }
+                });
+            } else {
+                alert.setMessage("You won!");
+                setDefaultButtons(alert);
+            }
         } else {
             alert.setMessage("Sorry, you lost.");
+            setDefaultButtons(alert);
         }
-        alert.setTitle(GAME_OVER);
-        alert.setPositiveButton("Play again", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton) {
-                stopTimer();
-                onCreate(null);
-            }
-        });
         alert.setCancelable(false);
         alert.show();
+    }
+
+    /*
+     * Helper to add buttons to alert dialog
+     */
+    private void setDefaultButtons(AlertDialog.Builder alert) {
+        alert.setPositiveButton("Play again", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+            stopTimer();
+            buildGame();
+            }
+        });
+        alert.setNeutralButton("Show best times", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+            startActivity(buildBestTimesIntent());
+            }
+        });
     }
 
     /*
@@ -158,7 +224,7 @@ public class MainActivity extends Activity {
         alert.setPositiveButton("Restart", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
                 stopTimer();
-                onCreate(null);
+                buildGame();
             }
         });
         alert.setNeutralButton("Show Solution", new DialogInterface.OnClickListener() {
