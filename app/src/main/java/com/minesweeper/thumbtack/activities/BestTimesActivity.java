@@ -11,10 +11,6 @@ import com.minesweeper.thumbtack.R;
 import java.util.List;
 
 public class BestTimesActivity extends ActionBarActivity {
-    public static final String INTENT_EXTRA_TIME_ONE_NAME = "INTENT_EXTRA_TIME_ONE_NAME";
-    public static final String INTENT_EXTRA_TIME_ONE_VALUE = "INTENT_EXTRA_TIME_ONE_VALUE";
-    public static final String INTENT_EXTRA_TIME_TWO_NAME = "INTENT_EXTRA_TIME_TWO_NAME";
-    public static final String INTENT_EXTRA_TIME_TWO_VALUE = "INTENT_EXTRA_TIME_TWO_VALUE";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

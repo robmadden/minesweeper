@@ -20,7 +20,7 @@
         android:id="@+id/high_scores"
         android:orderInCategory="100"
         android:showAsAction="never"
-        android:title="@string/show_high_scores" />
+        android:title="@string/show_best_times" />
     <item
         android:id="@+id/settings"
         android:orderInCategory="100"
