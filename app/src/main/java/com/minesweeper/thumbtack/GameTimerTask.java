@@ -2,6 +2,8 @@ package com.minesweeper.thumbtack;
 
 import android.widget.TextView;
 
+import com.minesweeper.thumbtack.activities.MainActivity;
+
 import java.util.TimerTask;
 
 public class GameTimerTask extends TimerTask {

@@ -1,4 +1,4 @@
-package com.minesweeper.thumbtack;
+package com.minesweeper.thumbtack.io;
 
 import android.content.Context;
 import android.util.Log;
@@ -7,6 +7,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.minesweeper.thumbtack.activities.MainActivity;
+import com.minesweeper.thumbtack.models.BestTime;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -64,7 +66,7 @@ public class BestTimes {
     /*
      * Check if time is in the top five and if so then add it to the file
      */
-    public void addNewTime(String name, String displayedTime, int index) {
+    public void insert(String name, String displayedTime, int index) {
         FileOutputStream fos = null;
         try {
             List<BestTime> times = fetch();
@@ -118,7 +120,6 @@ public class BestTimes {
             } catch (Exception e) {
                 Log.d(TAG, "faild to close filehandles");
             }
-
         }
 
         if (data == null) {

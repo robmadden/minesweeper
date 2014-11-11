@@ -1,4 +1,4 @@
-package com.minesweeper.thumbtack;
+package com.minesweeper.thumbtack.activities;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -12,27 +12,38 @@ import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.TextView;
 
+import com.minesweeper.thumbtack.io.BestTimes;
+import com.minesweeper.thumbtack.io.Settings;
+import com.minesweeper.thumbtack.models.Cell;
+import com.minesweeper.thumbtack.GameTimerTask;
+import com.minesweeper.thumbtack.GridAdapter;
+import com.minesweeper.thumbtack.R;
+import com.minesweeper.thumbtack.listeners.CellOnClickListener;
+import com.minesweeper.thumbtack.listeners.CellOnLongClickListener;
+
+import java.io.FileNotFoundException;
 import java.util.Timer;
 import java.util.TimerTask;
 
 
 public class MainActivity extends ActionBarActivity {
     public static final String GAME_OVER = "Game Over";
+    public static Context appContext;
     private GridAdapter adapter;
     private Menu menu;
     private Timer t;
     private TimerTask task;
     private BestTimes times;
     public boolean gameHasStarted;
-    public static Context appContext;
+    private Settings settings;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        this.appContext = getApplicationContext();
         setContentView(R.layout.activity_main);
         buildGame();
         times = new BestTimes();
-        this.appContext = getApplicationContext();
     }
 
     @Override
@@ -69,9 +80,18 @@ public class MainActivity extends ActionBarActivity {
         } else if (id == R.id.high_scores) {
             startActivity(buildBestTimesIntent());
             return true;
+        } else if (id == R.id.settings) {
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
+            return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private Intent buildBestTimesIntent() {
+        Intent intent = new Intent(this, BestTimesActivity.class);
+        return intent;
     }
 
     /*
@@ -82,11 +102,6 @@ public class MainActivity extends ActionBarActivity {
         t = new Timer();
         task = new GameTimerTask(this);
         t.scheduleAtFixedRate(task, 0, 1000);
-    }
-
-    private Intent buildBestTimesIntent() {
-        Intent intent = new Intent(this, BestTimesActivity.class);
-        return intent;
     }
 
     /*
@@ -112,7 +127,14 @@ public class MainActivity extends ActionBarActivity {
         TextView timeLabelView = (TextView) findViewById(R.id.timer);
         timeLabelView.setText("0:00");
 
-        adapter = new GridAdapter(this, flagCountView);
+        settings = new Settings();
+        try {
+            settings.fetch();
+        } catch (FileNotFoundException e) {
+            settings.setMineCount(Settings.DEFAULT_MINE_COUNT);
+        }
+
+        adapter = new GridAdapter(this, flagCountView, settings);
         gridview.setAdapter(adapter);
         AlertDialog.Builder alert = createEndGameAlertDialog();
         gridview.setOnItemClickListener(new CellOnClickListener(adapter, alert, this));
@@ -180,7 +202,7 @@ public class MainActivity extends ActionBarActivity {
                     public void onClick(DialogInterface dialog, int whichButton) {
                         String value = input.getText().toString();
                         if (value.isEmpty()) { return; }
-                        times.addNewTime(value, readableTime, index);
+                        times.insert(value, readableTime, index);
                         stopTimer();
                         buildGame();
                     }

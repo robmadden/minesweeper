@@ -14,21 +14,22 @@ import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.TextView;
 
+import com.minesweeper.thumbtack.models.Cell;
+import com.minesweeper.thumbtack.io.Settings;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 /*
- * Basic adapter to create populate the cells with data ... mines, numbers, etc.
+ * Basic adapter to create populate the cells with data ... numMines, numbers, etc.
  */
 public class GridAdapter extends BaseAdapter {
     public static final int TOTAL_CELL_COUNT = 64;
-    public static final int TOTAL_MINE_COUNT = 10;
     public static final int TOTAL_ROW_COUNT = 8;
     public static final int TOTAL_COLUMN_COUNT = 8;
     private static final int TEXT_CELL_SIZE = 18;
     private final TextView flagCountView;
-    public int flagCount;
 
     // Colors
     private final int CELL_COLOR;
@@ -41,11 +42,15 @@ public class GridAdapter extends BaseAdapter {
     private Activity activity;
     private List<Cell> cells;
     private boolean cheated;
+    private Settings settings;
+    public int flagCount;
 
-    public GridAdapter(Activity activity, TextView flagCountView) {
+    public GridAdapter(Activity activity, TextView flagCountView, Settings settings) {
         this.activity = activity;
         this.flagCountView = flagCountView;
-        
+        this.settings = settings;
+        this.flagCount = settings.numMines;
+
         cells = new ArrayList<Cell>(TOTAL_CELL_COUNT);
         randomizeBoard();
         setBoardState();
@@ -56,18 +61,17 @@ public class GridAdapter extends BaseAdapter {
         NUMBER_2_COLOR = resources.getColor(R.color.NUMBER_2_COLOR);
         NUMBER_3_COLOR = resources.getColor(R.color.NUMBER_3_COLOR);
         NUMBER_4_COLOR = resources.getColor(R.color.NUMBER_4_COLOR);
-        flagCount = TOTAL_MINE_COUNT;
     }
 
     /*
-     * Set which cells are mines using the first 10 items then shuffle the list
-     * using Collections - this way ensures that there will always be 10 mines
+     * Set which cells are numMines using the first 10 items then shuffle the list
+     * using Collections - this way ensures that there will always be 10 numMines
      * since there won't be duplicate random slots
      */
     private void randomizeBoard() {
         for (int i = 0 ; i < TOTAL_CELL_COUNT ; i++) {
             Cell c = new Cell();
-            if (i < TOTAL_MINE_COUNT) {
+            if (i < settings.numMines) {
                 c.isMine = true;
             }
             cells.add(c);
@@ -77,9 +81,9 @@ public class GridAdapter extends BaseAdapter {
     }
 
     /*
-     * Iterate over each item on the board and figure out how many adjacent mines it has.
+     * Iterate over each item on the board and figure out how many adjacent numMines it has.
      * We are doing a lot of work up front here to find out the number of adjacent
-     * mines to any given cell, but it would otherwise need to be calculated dynamically
+     * numMines to any given cell, but it would otherwise need to be calculated dynamically
      * (most likely when a board item was clicked)
      */
     private void setBoardState() {
@@ -95,7 +99,7 @@ public class GridAdapter extends BaseAdapter {
      * the cells which are adjacent to said position.  Effectively provides a virtual
      * map between cell positions on the board and indices into the "cells" list.
      *
-     * @param position the position in the list of cells to find adjacent mines for
+     * @param position the position in the list of cells to find adjacent numMines for
      * @returns List<Integer> a list of Integer indices into the "cells" list
      */
     private List<Integer> findAdjacentCells(int position) {
@@ -119,10 +123,10 @@ public class GridAdapter extends BaseAdapter {
     }
 
     /*
-     * Helper method to take a "cell" on the board and count how many mines are adjacent to it
+     * Helper method to take a "cell" on the board and count how many numMines are adjacent to it
      *
      * @param List<Integer> positions a list of indices into "cells" which denote a sublist
-     * @returns int the number of mines in the sublist
+     * @returns int the number of numMines in the sublist
      */
     private int countMines(List<Integer> positions) {
         int numAdjacentMines = 0;

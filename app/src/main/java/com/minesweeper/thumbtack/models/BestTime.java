@@ -1,4 +1,4 @@
-package com.minesweeper.thumbtack;
+package com.minesweeper.thumbtack.models;
 
 import java.io.Serializable;
 

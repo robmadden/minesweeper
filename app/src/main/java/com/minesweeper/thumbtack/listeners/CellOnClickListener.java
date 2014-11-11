@@ -1,9 +1,13 @@
-package com.minesweeper.thumbtack;
+package com.minesweeper.thumbtack.listeners;
 
 import android.app.AlertDialog;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+
+import com.minesweeper.thumbtack.models.Cell;
+import com.minesweeper.thumbtack.GridAdapter;
+import com.minesweeper.thumbtack.activities.MainActivity;
 
 /*
  * Contains logic to handle click events on cells

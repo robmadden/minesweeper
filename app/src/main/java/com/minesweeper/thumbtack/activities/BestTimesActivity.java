@@ -1,8 +1,12 @@
-package com.minesweeper.thumbtack;
+package com.minesweeper.thumbtack.activities;
 
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.widget.TextView;
+
+import com.minesweeper.thumbtack.models.BestTime;
+import com.minesweeper.thumbtack.io.BestTimes;
+import com.minesweeper.thumbtack.R;
 
 import java.util.List;
 

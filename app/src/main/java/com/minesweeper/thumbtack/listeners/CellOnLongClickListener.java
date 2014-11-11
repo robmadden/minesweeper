@@ -1,7 +1,10 @@
-package com.minesweeper.thumbtack;
+package com.minesweeper.thumbtack.listeners;
 
 import android.view.View;
 import android.widget.AdapterView;
+
+import com.minesweeper.thumbtack.models.Cell;
+import com.minesweeper.thumbtack.GridAdapter;
 
 public class CellOnLongClickListener implements AdapterView.OnItemLongClickListener {
     private GridAdapter adapter;
