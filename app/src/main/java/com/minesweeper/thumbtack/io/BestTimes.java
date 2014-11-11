@@ -3,33 +3,22 @@ package com.minesweeper.thumbtack.io;
 import android.content.Context;
 import android.util.Log;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.minesweeper.thumbtack.activities.MainActivity;
 import com.minesweeper.thumbtack.models.BestTime;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
+import java.lang.reflect.Type;
 import java.util.List;
 
-public class BestTimes {
-    private static final String TAG = BestTimes.class.getName();
-    public static final int TOTAL_SCORES_TO_STORE = 5;
-    private static final String FILENAME = "high_scores";
-    private static List<BestTime> data;
-    private ObjectMapper om;
-    private Gson gson;
+public class BestTimes extends GenericIO<BestTime> {
+    private transient static final String TAG = BestTimes.class.getName();
+    public transient static final int TOTAL_SCORES_TO_STORE = 5;
+    private static final String fileName = "high_scores";
 
+    public static List<BestTime> data;
     public BestTimes() {
-        om = new ObjectMapper();
-        om.configure(SerializationFeature.WRITE_NULL_MAP_VALUES, false);
-        om.configure(SerializationFeature.INDENT_OUTPUT,true);
-        gson = new Gson();
+        super("high_scores");
     }
 
     /*
@@ -46,18 +35,22 @@ public class BestTimes {
      * Iterate through list and get index of best time
      */
     public int getBestTimeIndex(Integer time) {
-        List<BestTime> times = fetch();
-        if (times == null || times.size() == 0) {
-            return 0;
-        }
-
         int index = 0;
-        int timeValue = time.intValue();
-        for (BestTime t : times) {
-            if (timeValue < t.time.intValue()) {
-                break;
+        try {
+            fetch();
+            if (this.data == null || this.data.size() == 0) {
+                return 0;
             }
-            index++;
+
+            int timeValue = time.intValue();
+            for (BestTime t : this.data) {
+                if (timeValue < t.time.intValue()) {
+                    break;
+                }
+                index++;
+            }
+        } catch (Exception e) {
+            Log.d(TAG, "failed to get best time index");
         }
 
         return index;
@@ -69,12 +62,12 @@ public class BestTimes {
     public void insert(String name, String displayedTime, int index) {
         FileOutputStream fos = null;
         try {
-            List<BestTime> times = fetch();
-            fos = MainActivity.appContext.openFileOutput(FILENAME, Context.MODE_PRIVATE);
+            fetch();
+            fos = MainActivity.appContext.openFileOutput(fileName, Context.MODE_PRIVATE);
             Integer time = toSeconds(displayedTime);
             BestTime s = new BestTime(time, name, displayedTime);
-            times.add(index, s);
-            String scoresAsJson = gson.toJson(times);
+            data.add(index, s);
+            String scoresAsJson = gson.toJson(data);
             fos.write(scoresAsJson.getBytes());
         } catch (Exception e) {
             Log.d(TAG, "failed to add new high score");
@@ -90,41 +83,9 @@ public class BestTimes {
         }
     }
 
-    /*
-     * Return the high scores listed in the high scores file
-     */
-    public List<BestTime> fetch() {
-        FileInputStream inputStream = null;
-        BufferedReader reader = null;
-        try {
-            inputStream = MainActivity.appContext.openFileInput(FILENAME);
-            reader = new BufferedReader(new InputStreamReader(inputStream));
-            StringBuilder total = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                total.append(line);
-            }
-
-            data = gson.fromJson(total.toString(),  new TypeToken<List<BestTime>>(){}.getType());
-        } catch(Exception e){
-            Log.d(TAG, "filed to fetch high scores");
-        } finally {
-            try {
-                if (inputStream != null) {
-                    inputStream.close();
-                }
-
-                if (reader != null) {
-                    reader.close();
-                }
-            } catch (Exception e) {
-                Log.d(TAG, "faild to close filehandles");
-            }
-        }
-
-        if (data == null) {
-            data = new ArrayList<BestTime>(TOTAL_SCORES_TO_STORE);
-        }
-        return data;
+    @Override
+    protected void deserialize(String json) {
+        Type t = new TypeToken<List<BestTime>>(){}.getType();
+        data = gson.fromJson(json, t);
     }
 }

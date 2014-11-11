@@ -4,11 +4,9 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.widget.TextView;
 
-import com.minesweeper.thumbtack.models.BestTime;
-import com.minesweeper.thumbtack.io.BestTimes;
 import com.minesweeper.thumbtack.R;
-
-import java.util.List;
+import com.minesweeper.thumbtack.io.BestTimes;
+import com.minesweeper.thumbtack.models.BestTime;
 
 public class BestTimesActivity extends ActionBarActivity {
 
@@ -31,11 +29,12 @@ public class BestTimesActivity extends ActionBarActivity {
         TextView valueViewFive = (TextView) findViewById(R.id.high_score_value_5);
 
         BestTimes times = new BestTimes();
-        List<BestTime> timeData = times.fetch();
-        if (timeData != null) {
-            int size = timeData.size();
+        try { times.fetch(); } catch (Exception e) {}
+
+        if (times.data != null) {
+            int size = times.data.size();
             if (size > 0) {
-                BestTime t1 = timeData.get(0);
+                BestTime t1 = times.data.get(0);
                 if (t1 != null) {
                     nameViewOne.setText(t1.name);
                     valueViewOne.setText(t1.readableTime);
@@ -43,7 +42,7 @@ public class BestTimesActivity extends ActionBarActivity {
             }
 
             if (size > 1) {
-                BestTime t2 = timeData.get(1);
+                BestTime t2 = times.data.get(1);
                 if (t2 != null) {
                     nameViewTwo.setText(t2.name);
                     valueViewTwo.setText(t2.readableTime);
@@ -51,7 +50,7 @@ public class BestTimesActivity extends ActionBarActivity {
             }
 
             if (size > 2) {
-                BestTime t3 = timeData.get(2);
+                BestTime t3 = times.data.get(2);
                 if (t3 != null) {
                     nameViewThree.setText(t3.name);
                     valueViewThree.setText(t3.readableTime);
@@ -59,7 +58,7 @@ public class BestTimesActivity extends ActionBarActivity {
             }
 
             if (size > 3) {
-                BestTime t4 = timeData.get(3);
+                BestTime t4 = times.data.get(3);
                 if (t4 != null) {
                     nameViewFour.setText(t4.name);
                     valueViewFour.setText(t4.readableTime);
@@ -67,7 +66,7 @@ public class BestTimesActivity extends ActionBarActivity {
             }
 
             if (size > 4) {
-                BestTime t5 = timeData.get(4);
+                BestTime t5 = times.data.get(4);
                 if (t5 != null) {
                     nameViewFive.setText(t5.name);
                     valueViewFive.setText(t5.readableTime);
