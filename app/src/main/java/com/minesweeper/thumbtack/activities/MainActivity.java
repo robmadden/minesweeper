@@ -28,6 +28,7 @@ import java.util.TimerTask;
 
 public class MainActivity extends ActionBarActivity {
     public static final String GAME_OVER = "Game Over";
+    public static final String INTENT_EXTRA_NUM_MINES = "intent_extra_num_mines";
     public static Context appContext;
     private GridAdapter adapter;
     private Menu menu;
@@ -91,6 +92,7 @@ public class MainActivity extends ActionBarActivity {
 
     private Intent buildBestTimesIntent() {
         Intent intent = new Intent(this, BestTimesActivity.class);
+        intent.putExtra(INTENT_EXTRA_NUM_MINES, settings.numMines);
         return intent;
     }
 
@@ -192,7 +194,7 @@ public class MainActivity extends ActionBarActivity {
             final TextView timer = (TextView) findViewById(R.id.timer);
             final String readableTime = (String)timer.getText();
             Integer time = times.toSeconds(readableTime);
-            final int index = times.getBestTimeIndex(time);
+            final int index = times.getBestTimeIndex(settings.numMines, time);
 
             if (index < BestTimes.TOTAL_SCORES_TO_STORE) {
                 alert.setTitle("New high score!");
@@ -202,7 +204,7 @@ public class MainActivity extends ActionBarActivity {
                     public void onClick(DialogInterface dialog, int whichButton) {
                         String value = input.getText().toString();
                         if (value.isEmpty()) { return; }
-                        times.insert(value, readableTime, index);
+                        times.insert(settings.numMines, value, readableTime, index);
                         stopTimer();
                         buildGame();
                     }

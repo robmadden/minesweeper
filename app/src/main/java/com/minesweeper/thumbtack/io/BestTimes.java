@@ -1,24 +1,25 @@
 package com.minesweeper.thumbtack.io;
 
-import android.content.Context;
 import android.util.Log;
 
 import com.google.gson.reflect.TypeToken;
-import com.minesweeper.thumbtack.activities.MainActivity;
 import com.minesweeper.thumbtack.models.BestTime;
 
-import java.io.FileOutputStream;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class BestTimes extends GenericIO<BestTime> {
     private transient static final String TAG = BestTimes.class.getName();
     public transient static final int TOTAL_SCORES_TO_STORE = 5;
-    private static final String fileName = "high_scores";
+    private static final String fileName = "best_times";
+    private Settings settings;
 
-    public static List<BestTime> data;
+    public static HashMap<Integer, List<BestTime>> data;
     public BestTimes() {
-        super("high_scores");
+        super(fileName);
+        this.settings = new Settings();
     }
 
     /*
@@ -34,16 +35,22 @@ public class BestTimes extends GenericIO<BestTime> {
     /*
      * Iterate through list and get index of best time
      */
-    public int getBestTimeIndex(Integer time) {
+    public int getBestTimeIndex(Integer numMines, Integer time) {
+        if (data == null) {
+            return 0;
+        }
+
+        List<BestTime> times = data.get(numMines);
+
         int index = 0;
         try {
             fetch();
-            if (this.data == null || this.data.size() == 0) {
+            if (times == null || times.size() == 0) {
                 return 0;
             }
 
             int timeValue = time.intValue();
-            for (BestTime t : this.data) {
+            for (BestTime t : times) {
                 if (timeValue < t.time.intValue()) {
                     break;
                 }
@@ -59,33 +66,33 @@ public class BestTimes extends GenericIO<BestTime> {
     /*
      * Check if time is in the top five and if so then add it to the file
      */
-    public void insert(String name, String displayedTime, int index) {
-        FileOutputStream fos = null;
+    public void insert(Integer numMines, String name, String displayedTime, int index) {
         try {
             fetch();
-            fos = MainActivity.appContext.openFileOutput(fileName, Context.MODE_PRIVATE);
-            Integer time = toSeconds(displayedTime);
-            BestTime s = new BestTime(time, name, displayedTime);
-            data.add(index, s);
-            String scoresAsJson = gson.toJson(data);
-            fos.write(scoresAsJson.getBytes());
         } catch (Exception e) {
-            Log.d(TAG, "failed to add new high score");
-        } finally {
-            if (fos != null) {
-                try {
-                    fos.flush();
-                    fos.close();
-                } catch (Exception e) {
-                    Log.d(TAG, "failed to add new high score");
-                }
-            }
+            Log.d(TAG, "failed to fetch data");
         }
+
+        if (data == null) {
+            data = new HashMap<Integer, List<BestTime>>();
+        }
+
+        if (data.get(numMines) == null) {
+            data.put(numMines, new ArrayList<BestTime>());
+        }
+
+        List<BestTime> times = data.get(numMines);
+        Integer time = toSeconds(displayedTime);
+        BestTime s = new BestTime(time, name, displayedTime);
+        times.add(index, s);
+        data.put(numMines, times);
+        String scoresAsJson = gson.toJson(data);
+        write(scoresAsJson);
     }
 
     @Override
     protected void deserialize(String json) {
-        Type t = new TypeToken<List<BestTime>>(){}.getType();
+        Type t = new TypeToken<HashMap<Integer, List<BestTime>>>(){}.getType();
         data = gson.fromJson(json, t);
     }
 }
